@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Phishing Detection Approaches</title>
+<style>
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* Reset margin and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f4f9;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Style for tables */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #5f87ff;
+    color: white;
+    text-transform: uppercase;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:hover {
+    background-color: #ddd;
+}
+
+/* Style for form controls */
+.filter-input {
+    padding: 8px;
+    margin-right: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+select {
+    cursor: pointer;
+}
+
+/* General spacing and alignment */
+div {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#citations-container h2 {
+    cursor: pointer;
+    background-color: #5f87ff;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+#citations-container div p {
+    text-align: left; /* Align text to the right */
+    margin: 5px 0; /* Slight margin for better readability */
+}
+
+
+#citations-container div {
+    padding: 10px;
+    display: block; /* Change to none to fold */
+    background-color: #f4f4f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+
+</style>
+</head>
+<body>
+<h1>An Overview on Phishing Detection Approaches with Explainability</h1>
+
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--                                F I L T E R S                              -->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+
+<div>
+  <label for="filter-ml">Filter by ML:</label>
+  <select id="filter-ml" class="filter-input" onchange="applyFilters()">
+    <option value="">All</option>
+    <option value="RF">RF</option>
+    <option value="SVM">SVM</option>
+    <option value="EBM">EBM</option>
+    <option value="LSTM">LSTM</option>
+    <option value="CNN">CNN</option>
+  </select>
+  
+
+  <label for="filter-info">Filter by Used Info:</label>
+  <select id="filter-info" class="filter-input" onchange="applyFilters()">
+    <option value="">All</option>
+    <option value="URL">URL</option>
+    <option value="Email">Email</option>
+    <option value="URL + Website">URL + Website</option>
+</select>
+
+  <label for="filter-xai">Filter by XAI-Type:</label>
+  <select id="filter-xai" class="filter-input" onchange="applyFilters()">
+    <option value="">All</option>
+    <option value="SHAP">SHAP</option>
+    <option value="LIME">LIME</option>
+    <option value="EBM">EBM</option>
+    <option value="inherently">inherently</option>
+  </select>
+
+  <label for="filter-dataset">Filter by Dataset:</label>
+ <select id="filter-dataset" class="filter-input" onchange="applyFilters()">
+  <option value="">All</option>
+  <option value="PhishTank">PhishTank</option>
+  <option value="Enron">Enron</option>
+  <option value="Other">Other</option>
+</select>
+
+  <label for="filter-implementation">Filter by Implementation:</label>
+  <select id="filter-implementation" class="filter-input" onchange="applyFilters()">
+    <option value="">All</option>
+    <option value="Available">Available</option>
+    <option value="Not Available">Not Available</option>
+  </select>
+
+  <label for="sort">Sort by:</label>
+  <select id="sort" class="filter-input" onchange="applyFilters()">
+    <option value="title-asc">Title (A-Z)</option>
+    <option value="title-desc">Title (Z-A)</option>
+    <option value="accuracy-desc">Highest Accuracy</option>
+    <option value="accuracy-asc">Lowest Accuracy</option>
+    <option value="year-desc">Newest First</option>
+    <option value="year-asc">Oldest First</option>
+  </select>
+</div>
+
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--                         A P P R O A C H E S                                -->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+
+<table id="approaches-table">
+  <thead>
+    <tr>
+      <th>Title/Name</th>
+      <th>ML</th>
+      <th>Used Info</th>
+      <th>XAI Type</th>
+      <th>Dataset</th>
+      <th>Link Paper + Citation</th>
+      <th>Implementation</th>
+      <th>Results</th>
+      <th>Notes and Limitations</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Data rows will be inserted here via JavaScript -->
+  </tbody>
+</table>
+
+<script>const approaches = [
+  {
+    title: "<b> PhishGuard </b> (Poddar et al) (2024)",
+    ml: "1D-CNN",
+    info: "URL",
+    xaiType: "SHAP",
+    dataset: "PhishTank, Brunswick",
+    link: "<a href='https://arxiv.org/pdf/2404.17960'>PhishGuard [1]</a>",
+    implementation: "Available. Link: <a href='https://github.com/UncoveredTensor/phishguard'> Implementation </a>  ",
+    results: "99.85%",
+    notes: ""
+  },
+  {
+    title: "<b> Phishing Detection Using URL-based XAI Techniques </b> (Paulo et al) (2021)",
+    ml: "EBM, RF, SVM",
+    info: "URL",
+    xaiType: "LIME, EBM",
+    dataset: "Ebbu2017 database",
+    link: "<a href='https://ieeexplore.ieee.org/document/9659981'>Paper [2]</a>",
+    implementation: "Not Available. Used InterpretML",
+    results: "96.46%",
+    notes: "RF and SVM used for LIME"
+  },
+  {
+    title: "<b> Explaining Phishing Attacks: An XAI Approach to Enhance User Awareness and Trust </b> (Greco et al) (2023)",
+    ml: "EBM",
+    info: "Email + URL",
+    xaiType: "EBM",
+    dataset: "Enron, SpamAssasin",
+    link: "<a href='https://ceur-ws.org/Vol-3488/paper22.pdf'>Paper [3]</a>",
+    implementation: "Not Available. Used InterpretML",
+    results: "98.7%",
+    notes: "-Their focus seems to be good designed warning messages <br> -used a userstudy with 300 participants to evaluate effectiveness of their research <br> - All values  (F1, P, R, Spec, ROC) >97% <br> -SpamAssasin only valid samples-"
+  },
+  {
+    title: "<b> Phishpedia </b> (Lin et al) (2021)",
+    ml: "RCNN + RNN on screenshot",
+    info: "URL + Screenshot",
+    xaiType: "Visual Annotations",
+    dataset: "OpenPhish self-generated data",
+    link: "<a href='https://www.usenix.org/system/files/sec21-lin.pdf'>Paper [4]</a>",
+    implementation: "Available. Link: <a href='https://github.com/lindsey98/Phishpedia'> Implementation </a> ",
+    results: "98.2%",
+    notes: "- Input: Screenshot of Website. Detects Phishing Website by comparing the fake logo there with real logo <br> - No training data needed (generated itself); test on OpenPhish"
+  },
+  {
+    title: "<b> Phishing Email Detection Using Persuasion Cues </b> (Rohit et al) (2022)",
+    ml: "SVM, RF, NB, LR",
+    info: "Email",
+    xaiType: "Not direct",
+    dataset: "MillerSmiles, Enron",
+    link: "<a href='https://ieeexplore.ieee.org/abstract/document/9565347'>Paper [5]</a>",
+    implementation: "Available upon request. Used scicit-learn",
+    results: "95.97%",
+    notes: "- Focus on persuasion cues (sentences aim to persuade the user to click on the link)  <br> - SVM had best performance <br> - Explainability: depict the gain and loss persuasion cues in the phishing emails (just a baseline)"
+  },
+  {
+    title: "<b> Explaining the Suspicion: Design of an XAI-Based User-Focused Anti-Phishing Measure </b>  (Kluge et al) (2021)",
+    ml: "LSTM-RNN",
+    info: "Email",
+    xaiType: "Local-beam-search",
+    dataset: "IWSPA-AP v2.0 dataset",
+    link: "<a href='https://link.springer.com/chapter/10.1007/978-3-030-86797-3_17'>Paper [6]</a>",
+    implementation: "Not Available",
+    results: "Not specified. Instead evaluation of XAI",
+    notes: "- Explainability: Highlight sentences in the email that indicate phishing (they are found by local beam search – this is independent of the ML-method for phishing detection) <br> - functionally-grounded evaluation of explainable systems using Score (contribution of highlighted sentences to the classification as phish mail), Comprehensibility (number of highlighted sentences) and Relevance (overlap with human marking of suspicious sentences)"
+  },
+  {
+    title: "<b> An Explainable Multi-Modal Hierarchical Attention Model for Developing Phishing Threat Intelligence </b> (Yidong et al) (2021)",
+    ml: "shared dictionary learning; LSTM + CNN + Attention",
+    info: "HTML + URL + Visual Content",
+    xaiType: "Attention",
+    dataset: "PhishTank, DMOZ",
+    link: "<a href='https://ieeexplore.ieee.org/document/9568704'>Paper [7]</a>",
+    implementation: "Not Available",
+    results: "97.26%",
+    notes: "- Explainability: attention within each modality was calculated to highlight the important elements within each information source <br> - no systematic evaluation of explainability (just a case study) "
+    },
+ 
+  {
+    title: "<b> A hybrid framework using explainable AI (XAI) in cyber-risk management for defence and recovery against phishing attacks </b> (Biswas et al) (2023)",
+    ml: "Bagger DT",
+    info: "URL",
+    xaiType: "Decision Tree",
+    dataset: "Sahingoz et al.",
+    link: "<a href='https://www.sciencedirect.com/science/article/abs/pii/S016792362300177X'>Paper [8]</a>",
+    implementation: "Not Available",
+    results: "94.61%",
+    notes: "-Analyzes various features (e.g., Hacker Expertise, Chances of Phishing, Phishing Detection Effort) to give a probability of Phishing Attacks, Correlated Loss, and suggestions for Risk Mitigation (MCI) <br> - In this table only the phishing Detection Effort: DPA-Module (the authors built their own classifier)"
+  },
+ 
+  {
+    title: "<b> Interpretable Machine Learning Models for Malicious Domains Detection Using Explainable Artificial Intelligence (XAI) </b>(Aslam et al) (2022)",
+    ml: "XGB",
+    info: "URL (just DNS)",
+    xaiType: "LIME, Shapley, Global Surrogate Model",
+    dataset: "Marques [9]",
+    link: "<a href='https://www.mdpi.com/2071-1050/14/12/7375#B34-sustainability-14-07375'>Paper [10]</a>",
+    implementation: "Not Available. Used Python sklearn and Dalex",
+    results: "98.56%",
+    notes: "The authors note themselves while outperforming benchmark models it was only tested on one dataset and could be tested on more"
+  },
+  {
+    title: "<b> Explainable Machine Learning for Bag of Words-Based Phishing Detection </b>(Carlarossa et al) (2023)",
+    ml: "RF",
+    info: "HTML",
+    xaiType: "Gini Index + Lorenz Zonoid",
+    dataset: "Singh [11]",
+    link: "<a href='https://link.springer.com/chapter/10.1007/978-3-031-44064-9_28'>Paper [12]</a>",
+    implementation: "Not Available",
+    results: "95%",
+    notes: "- HTML is represented by bag of words model (= maps the occurrence of words within the HTML into a vector) <br> - explainability is not evaluated"
+  },
+  {
+    title: "<b> Fake News and Phishing Detection Using a Machine Learning Trained Expert System </b>(Fitzpatrick et al) (2021)",
+    ml: "MLES (Machine Learning trained expert system)",
+    info: "URL",
+    xaiType: "Rule-fact network",
+    dataset: "PhishTank, Alexa [13]",
+    link: "<a href='https://arxiv.org/abs/2108.08264'>Paper [14]</a>",
+    implementation: "Not Available",
+    results: "Not given",
+    notes: "Explainability: MLES is used to build a human-understandable, explainable, and defensibly causal rule-fact network"
+  },
+  {
+    title: "<b> Phishing URL Detection and Vulnerability Assessment of Web Applications Using IVS Attributes with XAI </b> (Sudhakar et al) (2022)",
+    ml: "SVM, XGBoost",
+    info: "URL + HTML + PHP",
+    xaiType: "SHAP",
+    dataset: "SARD PHP vulnerability test suite",
+    link: "<a href='https://link.springer.com/chapter/10.1007/978-981-16-5655-2_89'>Paper [15]</a>",
+    implementation: "Not Available. Used Python sklearn",
+    results: "URL: 99.4%, HTML/PHP: awful (10-65%)",
+    notes: "-First step: URL is checked (SVM). If not classified as phishing in second step, php.file and source code is checked  <br> -Dataset for first step is not provided"
+  },
+  {
+    title: "<b> An Explainable Transformer-Based Model for Phishing Email Detection: A Large Language Model Approach </b> (Uddin et al) (2024)",
+    ml: "BERT",
+    info: "Email",
+    xaiType: "LIME, Transformer Interpret",
+    dataset: "Phishingmails Kaggle Dataset",
+    link: "<a href='https://arxiv.org/abs/2402.13871'>Paper [16]</a>",
+    implementation: "Not Available. Might be related to <a href='https://huggingface.co/dima806/phishing-email-detection'> Link </a>",
+    results: "97.5%",
+    notes: "Explanation: Highlighting of the words that had most influence in the classification decision (“score”)"
+  },
+  {
+    title: "<b> Explaining Explainable Ai with Applications to Phishing Detection </b>(Calzarossa et al) (2024)",
+    ml: "RF, SVM, LR",
+    info: "URL + Website",
+    xaiType: "Feature importance (RF), permutation importance (SVM)",
+    dataset: "Not found",
+    link: "<a href='https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4790045'>Paper [17]</a>",
+    implementation: "Not Available",
+    results: "AUC > 97.7%",
+    notes: "- Compares performance and explanation of different models (SVM, RF, …) <br> - Explanation = “Feature importance”, Comparison based on 1) Complexity (using Lorenz Zonoid), 2) Robustness (consistentness of explanation when doing small changes in data or model training using bootstrapping)"
+  },
+  {
+    title: "<b> Data Driven based Malicious URL Detection using Explainable AI </b>(Poddar et al) (2022)",
+    ml: "Gradient Boost + RF",
+    info: "URL",
+    xaiType: "ALE",
+    dataset: "PhishTank URL-Dataset",
+    link: "<a href='https://ieeexplore.ieee.org/document/10063704'>Paper [18]</a>",
+    implementation: "Not Available",
+    results: "97%",
+    notes: "seems to be focused on global explainability"
+  }, 
+  {
+    title: "<b> VORTEX : Visual phishing detections are Through Explanations </b>(Charmet et al) (2024)",
+    ml: "CNN + DML",
+    info: "Screenshot",
+    xaiType: "CAM",
+    dataset: "Phishpedia, VisualPhishNet",
+    link: "<a href='https://dl.acm.org/doi/abs/10.1145/3654665'>Paper [19]</a>",
+    implementation: "Not Available. used Pytorch (for CAM: GradCAM, GradCAM++, LayerCAM, etc.)",
+    results: "92% (top 5) and 85% (top 1)",
+    notes: "- only uses the brand logo (phishing websites often use fake brand logo) <br> - “explanation”: mark the pixels/area of the picture most significant for decision <br> - performance of explanations based on Remove And Debias (ROAD): Remove highlighted pixels see if it changes decision <br> - also a case study with selected examples"
+  },
+  {
+    title: "<b> Explaining URL Phishing Detection by Glass Box Models </b>(Sangeeta Mital) (2023)",
+    ml: "LR, DT",
+    info: "URL + Website",
+    xaiType: "inherently",
+    dataset: "[20]",
+    link: "<a href='https://dl.acm.org/doi/pdf/10.1145/3607947.3608059'>Paper [21]</a>",
+    implementation: "Not Available. used Python InterpretML",
+    results: "94.8% (LR), 90.7% (DT)",
+    notes: "Explanation: Path in DT and significance of features (no evaluation of explainability)"
+  },
+  {
+    title: "<b> A Modular and Adaptive System for Business Email Compromise Detection </b>(Brabec et al) (2023)",
+    ml: "LR",
+    info: "Email",
+    xaiType: "inherently",
+    dataset: "Self-created",
+    link: "<a href='https://arxiv.org/pdf/2308.10776'>Paper [22]</a>",
+    implementation: "Not Available",
+    results: "Not given",
+    notes: "- Focus on business emails compromisation for phishing attacks <br> - cold-start-problem: rarely data available => combine domain-knowledge + ML <br>  inherent explainability because of modular architecture"
+  },
+  {
+    title: "<b> DeNNeS: deep embedded neural network expert system for detecting cyber attacks </b> (Mahdavifar et al) (2020)",
+    ml: "DNN + Knowledge Base",
+    info: "URL + Website",
+    xaiType: "inherently",
+    dataset: "UCI phishing websites dataset",
+    link: "<a href='https://link.springer.com/article/10.1007/s00521-020-04830-w'>Paper [23]</a>",
+    implementation: "Not Available. used Python Tensorflow",
+    results: "97.5%",
+    notes: "- can be used not only for phishing detection but also e.g., malware detection <br> - explainability: extracts refined rules (=knowledge base) from a trained deep neural network (DNN) – user is informed of the rule that lead to phishing classification"
+  },
+  {
+    title: "<b> Explainable machine learning for phishing feature detection </b>(Calzarossa et al) (2024)",
+    ml: "Random Forest",
+    info: "URL",
+    xaiType: "Gini Index + Lorenz Zonoid",
+    dataset: "PhishTank, Tranco",
+    link: "<a href='https://onlinelibrary.wiley.com/doi/full/10.1002/qre.3411'>Paper [24]</a>",
+    implementation: "Available upon request. used Python",
+    results: "AUC: 96%",
+    notes: "Focus on global explainability, Local explainability (i.e., explainability of a single decision) not mentioned"
+  }
+];
+/*
+< !-- |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--                 J A V A S C R I P T                                        -->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+*/
+
+function applyFilters() {
+    const mlFilter = document.getElementById('filter-ml').value;
+    const infoFilter = document.getElementById('filter-info').value;
+    const xaiFilter = document.getElementById('filter-xai').value;
+    const datasetFilter = document.getElementById('filter-dataset').value;
+    const implementationFilter = document.getElementById('filter-implementation').value;
+    const sortCriteria = document.getElementById('sort').value;
+
+    let filteredData = approaches.filter(item => {
+        return (mlFilter === '' || item.ml.includes(mlFilter)) &&
+               (infoFilter === '' || item.info.includes(infoFilter)) &&
+               (xaiFilter === '' || item.xaiType.includes(xaiFilter)) &&
+               (datasetFilter === '' || item.dataset.includes(datasetFilter) || (datasetFilter === 'Other' && !item.dataset.includes('PhishTank') && !item.dataset.includes('Enron'))) &&
+               (implementationFilter === '' || (implementationFilter === 'Available' ? item.implementation.startsWith('Available') : item.implementation.startsWith('Not Available')))
+    });
+
+    // Function to extract year from the title
+    function getYearFromTitle(title) {
+        const yearMatch = title.match(/\(\d{4}\)/);
+        return yearMatch ? parseInt(yearMatch[0].replace(/[()]/g, ''), 10) : null;
+    }
+
+    filteredData.sort((a, b) => {
+        switch (sortCriteria) {
+            case 'title-asc': 
+                return a.title.localeCompare(b.title);
+            case 'title-desc': 
+                return b.title.localeCompare(a.title);
+            case 'accuracy-desc': 
+                return parseFloat(b.results) - parseFloat(a.results);
+            case 'accuracy-asc': 
+                return parseFloat(a.results) - parseFloat(b.results);
+            case 'year-desc': 
+                return getYearFromTitle(b.title) - getYearFromTitle(a.title);
+            case 'year-asc': 
+                return getYearFromTitle(a.title) - getYearFromTitle(b.title);
+            default: 
+                return 0;
+        }
+    });
+
+    updateTable(filteredData);
+    updateSelectOptions(approaches, 'ml', 'filter-ml');
+    updateSelectOptions(approaches, 'info', 'filter-info');
+    updateSelectOptions(approaches, 'xaiType', 'filter-xai');
+    updateSelectOptions(approaches, 'dataset', 'filter-dataset');
+
+}
+
+
+function updateTable(data) {
+  const tableBody = document.getElementById('approaches-table').getElementsByTagName('tbody')[0];
+  tableBody.innerHTML = '';
+
+  data.forEach(item => {
+    const row = tableBody.insertRow();
+    row.insertCell(0).innerHTML = item.title;
+    row.insertCell(1).textContent = item.ml;
+    row.insertCell(2).textContent = item.info;
+    row.insertCell(3).textContent = item.xaiType;
+    row.insertCell(4).textContent = item.dataset;
+    row.insertCell(5).innerHTML = item.link; // Use innerHTML here to render the link
+    row.insertCell(6).innerHTML = item.implementation; // Use innerHTML for any HTML content
+    row.insertCell(7).textContent = item.results;
+    row.insertCell(8).innerHTML = item.notes;
+  });
+}
+
+window.onload = applyFilters;
+</script>
+
+<!-- |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--                             C I T A T I O N S                              -->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<!--  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<-->
+<script> 
+document.getElementById('citations-container').getElementsByTagName('h2')[0].addEventListener('click', function() {
+    var content = this.nextElementSibling;
+    content.style.display = content.style.display === 'none' ? 'block' : 'none';
+});
+
+</script>
+<h1>Citations</h1>
+
+<div id="citations-container" style="margin-top: 20px;">
+  <h2> All Citations </h2>
+  <div>
+      <p id="cit-1">[1] Murad, Saydul & Rahimi, Nick & Muzahid, Abu. (2024). PhishGuard: Machine Learning-Powered Phishing URL Detection. 10.1109/CSCE60160.2023.00371.</p>
+      <p id="cit-2">[2] P. R. Galego Hernandes, C. P. Floret, K. F. Cardozo De Almeida, V. C. Da Silva, J. P. Papa and K. A. Pontara Da Costa, "Phishing Detection Using URL-based XAI Techniques," 2021 IEEE Symposium Series on Computational Intelligence (SSCI), Orlando, FL, USA, 2021, pp. 01-06, doi: 10.1109/SSCI50451.2021.9659981</p>
+      <p id="cit-3">[3] Greco, F., Desolda, G., & Esposito, A. (2023). Explaining Phishing Attacks: An XAI Approach to Enhance User Awareness and Trust. In Proceedings of the Italian Conference on CyberSecurity (ITASEC 2023), Bari, Italy. CEUR Workshop Proceedings. Retrieved from http://ceur-ws.org</p>
+      <p id="cit-4">[4] Lin, Y., Liu, R., Divakaran, D. M., Ng, J. Y., Chan, Q. Z., Lu, Y., Si, Y., Zhang, F., & Dong, J. S. (2021). Phishpedia: A Hybrid Deep Learning Based Approach to Visually Identify Phishing Webpages. In 30th USENIX Security Symposium (USENIX Security 21) (pp. 3793-3810). USENIX Association. Available at https://www.usenix.org/conference/usenixsecurity21/presentation/lin</p>
+      <p id="cit-5">[5] R. Valecha, P. Mandaokar and H. R. Rao, "Phishing Email Detection Using Persuasion Cues," in IEEE Transactions on Dependable and Secure Computing, vol. 19, no. 2, pp. 747-756, 1 March-April 2022, doi: 10.1109/TDSC.2021.3118931</p>
+      <p id="cit-6">[6] Kluge, K., Eckhardt, R. (2021). Explaining the Suspicion: Design of an XAI-Based User-Focused Anti-Phishing Measure. In: Ahlemann, F., Schütte, R., Stieglitz, S. (eds) Innovation Through Information Systems. WI 2021. Lecture Notes in Information Systems and Organisation, vol 47. Springer, Cham. https://doi.org/10.1007/978-3-030-86797-3_17</p>
+      <p id="cit-7">[7] Y. Chai, Y. Zhou, W. Li and Y. Jiang, "An Explainable Multi-Modal Hierarchical Attention Model for Developing Phishing Threat Intelligence," in IEEE Transactions on Dependable and Secure Computing, vol. 19, no. 2, pp. 790-803, 1 March-April 2022, doi: 10.1109/TDSC.2021.3119323</p>
+      <p id="cit-8">[8] Baidyanath Biswas, Arunabha Mukhopadhyay, Ajay Kumar, Dursun Delen, "A hybrid framework using explainable AI (XAI) in cyber-risk management for defence and recovery against phishing attacks" in Decision Support Systems, Volume 177, 2024, 114102, ISSN 0167-9236, https://doi.org/10.1016/j.dss.2023.114102</p>
+      <p id="cit-9">[9] Marques, C.; Malta, S.; Magalhães, J.P. DNS dataset for malicious domains detection. Data Brief 2021, 38, 107342</p>
+      <p id="cit-10">[10] Aslam, N.; Khan, I.U.; Mirza, S.; AlOwayed, A.; Anis, F.M.; Aljuaid, R.M.; Baageel, R. Interpretable Machine Learning Models for Malicious Domains Detection Using Explainable Artificial Intelligence (XAI). Sustainability 2022, 14, 7375. https://doi.org/10.3390/su14127375</p>
+      <p id="cit-11">[11] Singh, A.: Dataset of malicious and benign webpages. Mendeley Data (2020). https://data.mendeley.com/datasets/gdx3pkwp47/2 and Singh, A.: Malicious and benign webpages dataset. Data Brief 32, 106304 (2020)</p>
+      <p id="cit-12">[12] Calzarossa, M.C., Giudici, P., Zieni, R. (2023). Explainable Machine Learning for Bag of Words-Based Phishing Detection. In: Longo, L. (eds) Explainable Artificial Intelligence. xAI 2023. Communications in Computer and Information Science, vol 1901. Springer, Cham. https://doi.org/10.1007/978-3-031-44064-9_28</p>
+      <p id="cit-13">[13] G. Vrbančič, I. Fister, and V. Podgorelec, “Parameter Setting for Deep Neural Networks using Swarm Intelligence on Phishing Websites Classification,” Int. J. Artificial Intell. Tools, vol. 28, no. 6, pp. 1–28, 2019, doi: 10.1142/S021821301960008X</p>
+      <p id="cit-14">[14] Fitzpatrick, B., Liang, X., & Straub, J. (2021). Fake News and Phishing Detection Using a Machine Learning Trained Expert System. University of Alabama; Dallas College – North Lake; North Dakota State University.</p>
+      <p id="cit-15">[15] Sudhakar, V.J., Mahalingam, S., Venkatesh, V., Vetriselvi, V. (2022). Phishing URL Detection and Vulnerability Assessment of Web Applications Using IVS Attributes with XAI. In: Fong, S., Dey, N., Joshi, A. (eds) ICT Analysis and Applications. Lecture Notes in Networks and Systems, vol 314. Springer, Singapore. https://doi.org/10.1007/978-981-16-5655-2_89</p>
+      <p id="cit-16">[16] Uddin, M. A., & Sarker, I. H. (2024). An Explainable Transformer-based Model for Phishing Email Detection: A Large Language Model Approach. arXiv preprint arXiv:2402.13871. Retrieved from https://arxiv.org/abs/2402.13871</p>
+      <p id="cit-17">[17] Calzarossa, M. C., Giudici, P., & Zieni, R. (2024). Explaining explainable AI, with applications to phishing detection. Preprint submitted to Elsevier. Retrieved from https://ssrn.com/abstract=4790045</p>
+      <p id="cit-18">[18] S. Poddar, D. Chowdhury, A. D. Dwivedi and R. R. Mukkamala, "Data Driven based Malicious URL Detection using Explainable AI," 2022 IEEE International Conference on Trust, Security and Privacy in Computing and Communications (TrustCom), Wuhan, China, 2022, pp. 1266-1272, doi: 10.1109/TrustCom56396.2022.00176</p>
+      <p id="cit-19">[19] Fabien Charmet, Tomohiro Morikawa, Akira Tanaka, and Takeshi Takahashi. 2024. VORTEX : Visual phishing detectiOns aRe Through EXplanations. ACM Trans. Internet Technol. 24, 2, Article 9 (May 2024), 24 pages. https://doi.org/10.1145/3654665</p>
+      <p id="cit-20">[20] https://archive.ics.uci.edu/ml/machine-learning-databases/00327</p>
+      <p id="cit-21">[21] Sangeeta Mittal. 2023. Explaining URL Phishing Detection by Glass Box Models. In Proceedings of the 2023 Fifteenth International Conference on Contemporary Computing (IC3-2023). Association for Computing Machinery, New York, NY, USA, 537–544. https://doi.org/10.1145/3607947.3608059</p>
+      <p id="cit-22">[22] Brabec, J., Šrajer, F., Starosta, R., Sixta, T., Dupont, M., Lenoch, M., Menšík, J., Becker, F., Boros, J., Pop, T., & Novák, P. (2023). A Modular and Adaptive System for Business Email Compromise Detection. arXiv. https://arxiv.org/abs/2308.10776</p>
+      <p id="cit-23">[23] Mahdavifar, S., Ghorbani, A.A. DeNNeS: deep embedded neural network expert system for detecting cyber attacks. Neural Comput & Applic 32, 14753–14780 (2020). https://doi.org/10.1007/s00521-020-04830-w</p>
+      <p id="cit-24">[24] Calzarossa, M. C., Giudici, P., & Zieni, R. (2024). Explainable machine learning for phishing feature detection. Quality and Reliability Engineering International, 40, 362–373. https://doi.org/10.1002/qre.3411</p>
+  </div>
+</div>
+
+
+</body>
+</html>
